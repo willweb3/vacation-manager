@@ -1,0 +1,38 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vacation-manager-backend
+    ports:
+      - "5001:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - DB_PATH=/app/data/vacationmanager.db
+    volumes:
+      - sqlite-data:/app/data
+    networks:
+      - vacation-manager-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: vacation-manager-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - vacation-manager-network
+    environment:
+      - REACT_APP_API_URL=http://localhost:5001/api
+
+networks:
+  vacation-manager-network:
+    driver: bridge
+
+volumes:
+  sqlite-data:
+    driver: local
